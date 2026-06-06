@@ -1,27 +1,57 @@
-from argparse import ArgumentParser, Namespace
+#Importing Argparse for CLI
+import argparse
 
-parser = ArgumentParser()
-group = parser.add_mutually_exclusive_group()
+#setting the ArgumentParser & subparsers
+parser = argparse.ArgumentParser(prog="BudgetTracker")
+subparsers = parser.add_subparsers(dest="command")
 
-parser.add_argument("a", type=int, help="the base value")
-parser.add_argument("b", type=int, help="the exponent")
-group.add_argument("-v", "--verbose", action="count",
-                     help="try -vv")
-group.add_argument("-s", "--silence", action="store_true",
-                     help="generate a silent version of the output")
+#add: Add new expenses & category 
+#=========================================================================
+
+addParser = subparsers.add_parser("add", help="Add an expense/category",)
+
+addSubparser = addParser.add_subparsers(dest="addType")
+
+##If the user picked expense
+expenseParser = addSubparser.add_parser("expense" , help="Add a new expense")
+expenseParser.add_argument("name", type=str, 
+                           help="The name of the expense")
+expenseParser.add_argument("amount", type=float, 
+                           help="The price amoutn of the expense")
+expenseParser.add_argument("category", type=str, 
+                           help="The category of the expense")
+
+#If the user picked category
+categoryParser = addSubparser.add_parser("category", help="Add a new category")
+categoryParser.add_argument("name", type=str, 
+                            help="The name of the category")
+
+#=========================================================================
 
 
-args : Namespace = parser.parse_args()
-result: int = args.a ** args.b
 
-match args.verbose:
-    case 1:
-        print("fuck you")
 
-    case 2:
-        print(f"big result {result}")
+#list: see the list of expenses
+#summary: see the total cost of all items
+#delete: delete an expense by it's ID
 
-    case _:
-        print(result)
+#Parse the command that was sent by the user
+#=========================================================================
+args = parser.parse_args()
+print(f"User input: {args}")
+#=========================================================================
+
+#Checking the decisions of the user command 
+#=========================================================================
+
+
+#If user picked "add"
+if args.command == "add":
+    if args.addType == "expense":
+        print("Expense: Database set soon")
+
+    elif args.addType == "category":
+        print("Category: Database set soon")
+
 
 
