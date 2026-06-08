@@ -61,7 +61,7 @@ if args.command == "add":
         database.addCategoryToDatabase(args.name)
 
     elif args.addType == "expense":
-        print("Expense: Database set soon")
+        database.addExpenseToDatabase(args.name , args.amount , args.category)
 
     else:
         print("Invalid add type")

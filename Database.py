@@ -107,9 +107,9 @@ def addCategoryToDatabase(categoryName : str):
 #=========================================================================
 
 
-#Creating a new category row
+#if user gave a new category in the input of expense creating a new category for it
 #=========================================================================
-def addCategoryToDatabaseWithID(categoryName : str):
+def addCategoryToDatabaseForExpense(categoryName : str):
     #Connecting to the database
     connection = sqlite3.connect(databaseName)
     cursor = connection.cursor()
@@ -143,31 +143,52 @@ def addCategoryToDatabaseWithID(categoryName : str):
 
 #=========================================================================
 
-
+#Adding expense into the database
+#=========================================================================
 def addExpenseToDatabase(expenseName : str , amount : float , categoryName : str):
     #Connecting to the database
     connection = sqlite3.connect(databaseName)
     cursor  = connection.cursor()
 
-    #Checking if category exists and getting the ID of it
+    #changing the category name and expense name into format english
+    categoryName = modules.formatName(categoryName)
+    expenseName = modules.formatName(expenseName)
+
+    #getting the id from the name of the category
     cursor.execute(
-        "SELECT id , name FROM categories WEHRE name = ?",
+        "SELECT id FROM categories WHERE name = ?",
         (categoryName,)
     )
+    categoryFetchedID = None
+
+    #checkiing if the category even exists
     categoryRow = cursor.fetchone()
-    categoryFetchedID : int = categoryRow[0]
-    categoryFetchedName : str = categoryRow[1]
+    if categoryRow == None:
+        #Creating a new category with the input of name category user gave and take its ID
+        categoryFetchedID = addCategoryToDatabaseForExpense(categoryName)
 
-    #Checking if the name is the same
-    #if not create a new category for it and take the ID
-    if categoryName.lower() != categoryFetchedName.lower():
-        addCategoryToDatabaseWithID(categoryName)
+        #Closing the database
+        connection.commit()
+        connection.close()
+    #if exists take the ID
+    else:
+        categoryFetchedID : int = categoryRow[0]
 
+    
+    #Inserting a new expense into the database
+    cursor.execute("""
+    INSERT INTO Expenses
+        (name, amount, categoryId)
+        VALUES(?, ?, ?)
+        """,
+        (expenseName, amount, categoryName)
+    )
 
-
+    #Commiting and closing the database
     connection.commit()
     connection.close()
 
+#=========================================================================
 
     
     
