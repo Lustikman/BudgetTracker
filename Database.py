@@ -315,6 +315,11 @@ def getListOfExpenses():
     else:
         for expenseID , expenseName , expenseAmount , expenseCategory in fetchedExpenses:
             print(f"Expense ID: {expenseID} | Name: {expenseName} | Amount: {expenseAmount} | Category: {expenseCategory}")
+    
+    #Commiting and closing the database
+    connection.commit()
+    connection.close()
+
 
 #=========================================================================
 
@@ -348,3 +353,55 @@ def getSumTotalAllexpenses():
             sum = sum + expenseAmount[0]
         
         print(f"Amount: {sum}")
+
+    #Commiting and closing the database
+    connection.commit()
+    connection.close()
+
+
+#=========================================================================
+
+
+#Function that do the sum of all expenses inside a specific category
+#=========================================================================
+
+def getSumOfAllExpensesByCategory(categoryName: str):
+
+    # connecting into the database
+    connection = sqlite3.connect(databaseName)
+    cursor = connection.cursor()
+
+    #changing the format for the database format
+    categoryName = modules.formatName(categoryName) 
+
+    # getting the id of the category user typed
+    cursor.execute("""
+        SELECT id 
+        FROM categories 
+        WHERE name = ?
+    """, (categoryName,))
+
+    fetchedIdCategory = cursor.fetchone()
+
+    # Checking if the id exists
+    if fetchedIdCategory is None:
+        print("Category doesn't exist.")
+        return
+
+    # Getting all expenses amounts for that category
+    cursor.execute("""
+                SELECT amount
+                FROM Expenses
+                WHERE categoryId = ?""", 
+    (fetchedIdCategory[0],))
+    fetchedExpensesAmounts = cursor.fetchall()
+
+    # calculating total
+    total = 0
+    for (amount,) in fetchedExpensesAmounts:
+        total += amount
+
+    print(f"Amount: {total}")
+
+    # closing connection
+    connection.close()

@@ -117,7 +117,7 @@ elif args.command == "sum":
         database.getSumTotalAllexpenses()
 
     else:
-        pass
+        database.getSumOfAllExpensesByCategory(args.sumCategory)
 
 
 
