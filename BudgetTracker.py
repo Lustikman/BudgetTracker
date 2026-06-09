@@ -55,7 +55,18 @@ listExpensesParser = listSubparser.add_parser("expense" , help="Give list of exp
 
 #=========================================================================
 
-#summary: see the total cost of all items
+
+#summary: see the total cost of all expenses or specific category total
+#=========================================================================
+
+sumParser = subparsers.add_parser("sum", help="Give a summary total of all the expenses in category or overall")
+
+#if the user want a specific category
+sumParser.add_argument("sumCategory" , type=str,
+                       nargs="?" , help="The category name")
+
+#=========================================================================
+
 #delete: delete an expense by it's ID
 
 #Parse the command that was sent by the user
@@ -86,9 +97,11 @@ elif args.command == "list":
 
     #if user picked category
     if args.listType == "category":
+        
         #checking if user put category name for expenses 
         if args.categoryName:
             database.getListOfExpensesByCategory(args.categoryName)
+
         #if user only used category for list of categories
         else:
             database.getListOfAllCategories()
@@ -96,6 +109,16 @@ elif args.command == "list":
     #gives list of all expenses in the database   
     elif args.listType == "expense":
         database.getListOfExpenses()
+
+elif args.command == "sum":
+
+    #if user wanted a specific category
+    if not args.sumCategory:
+        database.getSumTotalAllexpenses()
+
+    else:
+        pass
+
 
 
 
