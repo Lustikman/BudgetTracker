@@ -13,34 +13,48 @@ subparsers = parser.add_subparsers(dest="command")
 #Creates Database
 database.createDatabase()
 
+
 #add: Add new expenses & category 
 #=========================================================================
 
 addParser = subparsers.add_parser("add", help="Add an expense/category",)
-
 addSubparser = addParser.add_subparsers(dest="addType" , required=True)
 
 #If the user picked category
-categoryParser = addSubparser.add_parser("category", help="Add a new category")
-categoryParser.add_argument("name", type=str, 
+addCategoriesParser = addSubparser.add_parser("category", help="Add a new category")
+addCategoriesParser.add_argument("name", type=str, 
                             help="The name of the category")
 
 ##If the user picked expense
-expenseParser = addSubparser.add_parser("expense" , help="Add a new expense")
-expenseParser.add_argument("name", type=str, 
+addExpenseParser = addSubparser.add_parser("expense" , help="Add a new expense")
+addExpenseParser.add_argument("name", type=str, 
                            help="The name of the expense")
-expenseParser.add_argument("amount", type=float, 
+addExpenseParser.add_argument("amount", type=float, 
                            help="The price amoutn of the expense")
-expenseParser.add_argument("category", type=str, 
+addExpenseParser.add_argument("category", type=str, 
                            help="The category of the expense")
 
 
 #=========================================================================
 
 
+#list: see the list of expenses\categories or both
+#=========================================================================
 
+listParser = subparsers.add_parser("list", help="Give a list of expenses/categories or both")
+listSubparser = listParser.add_subparsers(dest="listType")
 
-#list: see the list of expenses
+#if the user picked categories list
+listCategoriesParser = listSubparser.add_parser("category", 
+                                                help="Give list of categories or gives expenses of the category")
+listCategoriesParser.add_argument("categoryName" , type=str,
+                                  nargs="?" , help="The category name for the list of it")
+
+#if user picked expenses list
+listExpensesParser = listSubparser.add_parser("expenses" , help="Give list of expenses")
+
+#=========================================================================
+
 #summary: see the total cost of all items
 #delete: delete an expense by it's ID
 
@@ -57,14 +71,30 @@ print(f"User input: {args}")
 #If user picked "add"
 if args.command == "add":
 
+    #if user picked category
     if args.addType == "category":
         database.addCategoryToDatabase(args.name)
-
+    #if user picked expense
     elif args.addType == "expense":
         database.addExpenseToDatabase(args.name , args.amount , args.category)
-
+    #if user picked invalid input
     else:
         print("Invalid add type")
+
+#If user picked "list"
+elif args.command == "list":
+
+    #if user picked category
+    if args.listType == "category":
+        #checking if user put category name for expenses 
+        if args.categoryName:
+            database.getListOfExpensesByCategory(args.categoryName)
+        #if user only used category for list of categories
+        else:
+            pass
+
+
+
 
 
 

@@ -79,7 +79,7 @@ def addCategoryToDatabase(categoryName : str):
 
     #Checking if category name exists 
     cursor.execute(
-        "SELECT name FROM categories WHERE name = ?",
+        "SELECT name FROM Categories WHERE name = ?",
         (categoryName,)
     )
     fetchedCategoryName = cursor.fetchone()
@@ -129,7 +129,7 @@ def addCategoryToDatabaseForExpense(categoryName : str):
 
     #Getting the new ID of the new category
     cursor.execute(
-        "SELECT id FROM categories WHERE name = ?",
+        "SELECT id FROM Categories WHERE name = ?",
         (categoryName,)
     )
     fetchedID : int = cursor.fetchone()[0]
@@ -156,7 +156,7 @@ def addExpenseToDatabase(expenseName : str , amount : float , categoryName : str
 
     #getting the id from the name of the category
     cursor.execute(
-        "SELECT id FROM categories WHERE name = ?",
+        "SELECT id FROM Categories WHERE name = ?",
         (categoryName,)
     )
     categoryFetchedID = None
@@ -164,12 +164,18 @@ def addExpenseToDatabase(expenseName : str , amount : float , categoryName : str
     #checkiing if the category even exists
     categoryRow = cursor.fetchone()
     if categoryRow == None:
+
+        #Closing the database for the new function to open it
+        connection.commit()
+        connection.close()
+
         #Creating a new category with the input of name category user gave and take its ID
         categoryFetchedID = addCategoryToDatabaseForExpense(categoryName)
 
-        #Closing the database
-        connection.commit()
-        connection.close()
+        #Connecting to the database
+        connection = sqlite3.connect(databaseName)
+        cursor  = connection.cursor()
+
     #if exists take the ID
     else:
         categoryFetchedID : int = categoryRow[0]
@@ -181,7 +187,7 @@ def addExpenseToDatabase(expenseName : str , amount : float , categoryName : str
         (name, amount, categoryId)
         VALUES(?, ?, ?)
         """,
-        (expenseName, amount, categoryName)
+        (expenseName, amount, categoryFetchedID)
     )
 
     #Commiting and closing the database
@@ -190,5 +196,58 @@ def addExpenseToDatabase(expenseName : str , amount : float , categoryName : str
 
 #=========================================================================
 
+
+#Giving a list of items 
+#=========================================================================
+
+def getListOfExpensesByCategory(categoryName : str):
+
+    #Connecting to the database
+    connection = sqlite3.connect(databaseName)
+    cursor  = connection.cursor()
+
+    #changing the format for the database format
+    categoryName = modules.formatName(categoryName)
+
+    #finding the id of the category
+    cursor.execute(
+        "SELECT id FROM Categories WHERE name = ?",
+        (categoryName,)
+    )
+    fetchedID : int = cursor.fetchone()
+
+    #checking if the ID exists if not end the function
+    if fetchedID == None:
+        print("Category Doesnt exist.")
+        return
     
+    else:
+        fetchedID = fetchedID[0]
     
+    #getting the id,amount,name and the category name of all expenses with the same id number
+    cursor.execute("""
+                   SELECT
+                   Expenses.id,
+                   Expenses.amount,
+                   Expenses.name,
+                   Categories.name AS category_name
+                   FROM Expenses INNER JOIN Categories
+                   ON  Expenses.categoryId = Categories.id
+                   WHERE Expenses.categoryId = ?""",
+                   (fetchedID,)
+    )
+    fetchedExpensesList = cursor.fetchall()
+
+    #checking if there even expnses in the category
+    if not fetchedExpensesList:
+        print("There no expnses inside the category")
+        return 
+    
+    else:
+        for expense_id, amount, name, category_name in fetchedExpensesList:
+            print(f"ID: {expense_id} | Name: {name} | Amount: {amount} | Category: {category_name}")
+
+    #Commiting and closing the database
+    connection.commit()
+    connection.close()
+
