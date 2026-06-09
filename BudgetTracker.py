@@ -91,7 +91,7 @@ elif args.command == "list":
             database.getListOfExpensesByCategory(args.categoryName)
         #if user only used category for list of categories
         else:
-            pass
+            database.getListOfAllCategories()
 
 
 

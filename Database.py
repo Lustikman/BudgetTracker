@@ -197,7 +197,7 @@ def addExpenseToDatabase(expenseName : str , amount : float , categoryName : str
 #=========================================================================
 
 
-#Giving a list of items 
+#Giving a list of expenses inside the category
 #=========================================================================
 
 def getListOfExpensesByCategory(categoryName : str):
@@ -246,6 +246,38 @@ def getListOfExpensesByCategory(categoryName : str):
     else:
         for expense_id, amount, name, category_name in fetchedExpensesList:
             print(f"ID: {expense_id} | Name: {name} | Amount: {amount} | Category: {category_name}")
+
+    #Commiting and closing the database
+    connection.commit()
+    connection.close()
+
+#=========================================================================
+
+
+#Gives list of all the categories
+#=========================================================================
+
+def getListOfAllCategories():
+
+    #Connecting to the database
+    connection = sqlite3.connect(databaseName)
+    cursor  = connection.cursor()
+
+    #Getting all the categories names and ids
+    cursor.execute("""
+                   SELECT
+                   id , name FROM
+                   Categories"""
+    )
+    fetchedCategories = cursor.fetchall()
+
+    #printing all the categories if empty telling the user
+    if not fetchedCategories:
+        print("There no categories.")
+    
+    else:
+        for category_id, name in fetchedCategories:
+            print(f"ID: {category_id} | Name: {name}")
 
     #Commiting and closing the database
     connection.commit()
