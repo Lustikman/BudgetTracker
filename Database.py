@@ -283,3 +283,35 @@ def getListOfAllCategories():
     connection.commit()
     connection.close()
 
+
+#=========================================================================
+
+
+#function that gives all expenses that are in the database of the user
+#=========================================================================
+
+def getListOfExpenses():
+    
+    #connecting into the database
+    connection = sqlite3.connect(databaseName)
+    cursor = connection.cursor()
+
+    #Getting all the expenses names, amount and id
+    cursor.execute("""
+                   SELECT
+                   Expenses.id,
+                   Expenses.name,
+                   Expenses.amount,
+                   Categories.name
+                   FROM Expenses INNER JOIN Categories
+                   ON Expenses.categoryId == Categories.id"""
+    )
+    fetchedExpenses = cursor.fetchall()
+
+    #checking if expenses get any information inside if not tell the user
+    if not fetchedExpenses:
+        print("There no expenses.")
+
+    else:
+        for expenseID , expenseName , expenseAmount , expenseCategory in fetchedExpenses:
+            print(f"Expense ID: {expenseID} | Name: {expenseName} | Amount: {expenseAmount} | Category: {expenseCategory}")

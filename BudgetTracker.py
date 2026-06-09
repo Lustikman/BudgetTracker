@@ -51,7 +51,7 @@ listCategoriesParser.add_argument("categoryName" , type=str,
                                   nargs="?" , help="The category name for the list of it")
 
 #if user picked expenses list
-listExpensesParser = listSubparser.add_parser("expenses" , help="Give list of expenses")
+listExpensesParser = listSubparser.add_parser("expense" , help="Give list of expenses")
 
 #=========================================================================
 
@@ -92,6 +92,12 @@ elif args.command == "list":
         #if user only used category for list of categories
         else:
             database.getListOfAllCategories()
+
+    #gives list of all expenses in the database   
+    elif args.listType == "expense":
+        database.getListOfExpenses()
+
+
 
 
 
