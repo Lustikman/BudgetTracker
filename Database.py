@@ -345,6 +345,7 @@ def getSumTotalAllexpenses():
     if not fetchedExpensesAmounts:
         print("There no expenses.")
         print("Total: 0")
+        connection.close()
     
     else:
         sum : int = 0
@@ -386,6 +387,7 @@ def getSumOfAllExpensesByCategory(categoryName: str):
     # Checking if the id exists
     if fetchedIdCategory is None:
         print("Category doesn't exist.")
+        connection.close()
         return
 
     # Getting all expenses amounts for that category
@@ -405,3 +407,84 @@ def getSumOfAllExpensesByCategory(categoryName: str):
 
     # closing connection
     connection.close()
+
+#=========================================================================
+
+
+#Delete a category and the expenses inside of it
+#=========================================================================
+
+def deleteCategory(categoryName : str):
+    
+    # connecting into the database
+    connection = sqlite3.connect(databaseName)
+    cursor = connection.cursor()
+
+    #changing the format for the database format
+    categoryName = modules.formatName(categoryName) 
+
+    #Before deleting the category, deleting all the expenses 
+    cursor.execute("""
+        SELECT id 
+        FROM categories 
+        WHERE name = ?
+    """, 
+    (categoryName,))
+
+    fetchedIdCategory = cursor.fetchone()
+
+    # Checking if the id exists
+    if fetchedIdCategory is None:
+        print("Category doesn't exist.")
+        connection.close()
+        return
+    
+    #Deleting all the expenses inside the category
+    cursor.execute("""
+                   DELETE FROM Expenses WHERE categoryId = ?""",
+                   (fetchedIdCategory[0],)
+    )
+    connection.commit()
+
+    #deleting the category after deleting all the expenses
+    cursor.execute("""
+                   DELETE FROM Categories WHERE id = ?""",
+                   (fetchedIdCategory[0],)
+    )
+    connection.commit()
+
+
+    #closing the database
+    connection.close()
+
+#=========================================================================
+
+
+#Function that Deletes the expense by id input
+#=========================================================================
+
+def deleteExpense(expenseID: int):
+
+    # Connecting to the database
+    connection = sqlite3.connect(databaseName)
+    cursor = connection.cursor()
+
+    # Delete the expense with the given ID
+    cursor.execute(
+        "DELETE FROM Expenses WHERE id = ?",
+        (expenseID,)
+    )
+
+    # Check if anything was deleted
+    if cursor.rowcount == 0:
+        print("Expense doesn't exist.")
+    else:
+        print("Expense deleted.")
+
+    # Save changes and close
+    connection.commit()
+    connection.close()
+
+#=========================================================================
+
+

@@ -67,7 +67,26 @@ sumParser.add_argument("sumCategory" , type=str,
 
 #=========================================================================
 
+
 #delete: delete an expense by it's ID
+#=========================================================================
+
+deleteParser = subparsers.add_parser("delete", help="Delete Expense/Category by his ID")
+deleteSubparser = deleteParser.add_subparsers(dest="deleteType")
+
+#if the user picked categories list
+deleteCategoryParser = deleteSubparser.add_parser("category", 
+                                                help="Delete a category")
+deleteCategoryParser.add_argument("category" , type=str,
+                                  nargs="?" , help="The name of the category")
+
+#if the user picked categories list
+deleteExpenseParser = deleteSubparser.add_parser("expense", 
+                                                help="Delete a expense")
+deleteExpenseParser.add_argument("expense" , type=int,
+                                  nargs="?" , help="The name of the expense")
+
+#=========================================================================
 
 #Parse the command that was sent by the user
 #=========================================================================
@@ -119,7 +138,17 @@ elif args.command == "sum":
     else:
         database.getSumOfAllExpensesByCategory(args.sumCategory)
 
+elif args.command == "delete":
 
+    #if user want to delete a category
+    if args.deleteType == "category":
+        database.deleteCategory(args.category)
+    
+    #if user want to delete a expense
+    if args.deleteType == "expense":
+        database.deleteExpense(args.expense)
+
+#=========================================================================
 
 
 
