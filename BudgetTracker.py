@@ -14,18 +14,21 @@ subparsers = parser.add_subparsers(dest="command")
 database.createDatabase()
 
 
-#add: Add new expenses & category 
+#Add parser: Add new expenses & categories
 #=========================================================================
 
+#Creating a parser for add command
 addParser = subparsers.add_parser("add", help="Add an expense/category",)
 addSubparser = addParser.add_subparsers(dest="addType" , required=True)
 
 #If the user picked category
+#Creating the needed argument
 addCategoriesParser = addSubparser.add_parser("category", help="Add a new category")
 addCategoriesParser.add_argument("name", type=str, 
                             help="The name of the category")
 
 ##If the user picked expense
+#Creating the needed arguments
 addExpenseParser = addSubparser.add_parser("expense" , help="Add a new expense")
 addExpenseParser.add_argument("name", type=str, 
                            help="The name of the expense")
@@ -38,64 +41,72 @@ addExpenseParser.add_argument("category", type=str,
 #=========================================================================
 
 
-#list: see the list of expenses\categories or both
+#List parser: See a list of all expense \ list of expenses inside a specific categories
 #=========================================================================
 
+#Creting a parser for the list command
 listParser = subparsers.add_parser("list", help="Give a list of expenses/categories or both")
 listSubparser = listParser.add_subparsers(dest="listType")
 
 #if the user picked categories list
-listCategoriesParser = listSubparser.add_parser("category", 
+#Creating the needed arguments
+listCategoriesParser = listSubparser.add_parser("category",
                                                 help="Give list of categories or gives expenses of the category")
 listCategoriesParser.add_argument("categoryName" , type=str,
-                                  nargs="?" , help="The category name for the list of it")
+                                  help="The category name for the list of it", nargs="?")
 
 #if user picked expenses list
-listExpensesParser = listSubparser.add_parser("expense" , help="Give list of expenses")
+#Creating the needed arguments
+listExpensesParser = listSubparser.add_parser("expenses" , help="Give list of expenses")
 
 #=========================================================================
 
 
-#summary: see the total cost of all expenses or specific category total
+#Summary parser: Getting a sum total of amount money of expenses 
 #=========================================================================
 
-sumParser = subparsers.add_parser("sum", help="Give a summary total of all the expenses in category or overall")
+#Creating a parser for the summary
+summaryParser = subparsers.add_parser("sum", help="Give a summary total of all the expenses in category or overall")
 
 #if the user want a specific category
-sumParser.add_argument("sumCategory" , type=str,
+summaryParser.add_argument("sumCategory" , type=str,
                        nargs="?" , help="The category name")
 
 #=========================================================================
 
 
-#delete: delete an expense by it's ID
+#Delete parser: Delete an expenses\category by the name or id
 #=========================================================================
 
+#Creating a paerser
 deleteParser = subparsers.add_parser("delete", help="Delete Expense/Category by his ID")
-deleteSubparser = deleteParser.add_subparsers(dest="deleteType")
+deleteSubparser = deleteParser.add_subparsers(dest="deleteType", required=True)
 
 #if the user picked categories list
+#Creating the needed arguments
 deleteCategoryParser = deleteSubparser.add_parser("category", 
                                                 help="Delete a category")
 deleteCategoryParser.add_argument("category" , type=str,
-                                  nargs="?" , help="The name of the category")
+                                  help="The name of the category")
 
 #if the user picked categories list
+#Creating the needed arguments
 deleteExpenseParser = deleteSubparser.add_parser("expense", 
                                                 help="Delete a expense")
 deleteExpenseParser.add_argument("expense" , type=int,
-                                  nargs="?" , help="The name of the expense")
+                                  help="The name of the expense")
 
 #=========================================================================
 
-#Parse the command that was sent by the user
+#Getting the command the user typed
 #=========================================================================
 args = parser.parse_args()
-print(f"User input: {args}")
+#DEBUG TO SEE THE COMMAND
+#print(f"User input: {args}")
 #=========================================================================
 
 
-#Checking the decisions of the user command 
+#Checking the input of the user
 #=========================================================================
 
 #If user picked "add"
@@ -126,18 +137,21 @@ elif args.command == "list":
             database.getListOfAllCategories()
 
     #gives list of all expenses in the database   
-    elif args.listType == "expense":
+    elif args.listType == "expenses":
         database.getListOfExpenses()
 
+#if user picked "sum"
 elif args.command == "sum":
 
-    #if user wanted a specific category
+    #Gives a sum total of all
     if not args.sumCategory:
         database.getSumTotalAllexpenses()
 
+    #Gives the sum total of expenes of the same category
     else:
         database.getSumOfAllExpensesByCategory(args.sumCategory)
 
+#if user picked "delete"
 elif args.command == "delete":
 
     #if user want to delete a category
@@ -145,14 +159,11 @@ elif args.command == "delete":
         database.deleteCategory(args.category)
     
     #if user want to delete a expense
-    if args.deleteType == "expense":
+    elif args.deleteType == "expense":
         database.deleteExpense(args.expense)
 
+elif args.command is None:
+    parser.print_help()
+
 #=========================================================================
-
-
-
-
-
-
 
